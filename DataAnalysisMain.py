@@ -57,8 +57,8 @@ from generate_audit_report import run_audit_report
 
 
 
-# folder_2024 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2024"
-# folder_2025 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2025"
+# folder_2024 = "tlc_data/tlc_2024"
+# folder_2025 = "tlc_data/tlc_2025"
 
 # congestion_zone_ids = get_congestion_zone_ids()
 # comparison = compare_q1_yellow_vs_green(
@@ -81,8 +81,8 @@ from generate_audit_report import run_audit_report
 
 
 
-# folder_2024 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2024"
-# folder_2025 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2025"
+# folder_2024 = "tlc_data/tlc_2024"
+# folder_2025 = "tlc_data/tlc_2025"
 # heatmap_2024, heatmap_2025 = compare_q1_velocity(folder_2024, folder_2025)
 # print(heatmap_2024,"\n\n")
 # print(heatmap_2025)

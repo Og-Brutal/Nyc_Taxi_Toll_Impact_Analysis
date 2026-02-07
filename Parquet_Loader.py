@@ -38,6 +38,7 @@ def tlc_filtered_batches(file_path):
     }
 
     # Open Parquet file
+    print(f"DEBUG: Opening Parquet file: {file_path}")
     pq_file = pq.ParquetFile(file_path)
     total_rows = pq_file.metadata.num_rows
     batch_size = max(1, total_rows / 2) 

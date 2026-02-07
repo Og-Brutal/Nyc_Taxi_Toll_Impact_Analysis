@@ -11,12 +11,15 @@ from Parquet_Loader import tlc_filtered_batches
 # CONFIG
 # ==========================================================
 
-PROJECT_ROOT = Path(__file__).parent
-BASE_DIR = str(PROJECT_ROOT / "tlc_data")
+PROJECT_ROOT = Path(__file__).resolve().parent
+BASE_DIR = PROJECT_ROOT / "tlc_data"
 
-YEAR_2023 = os.path.join(BASE_DIR, "tlc_2023")
-YEAR_2024 = os.path.join(BASE_DIR, "tlc_2024")
-YEAR_2025 = os.path.join(BASE_DIR, "tlc_2025")
+print(f"DEBUG: Imputation PROJECT_ROOT resolved to: {PROJECT_ROOT}")
+print(f"DEBUG: Imputation BASE_DIR resolved to: {BASE_DIR}")
+
+YEAR_2023 = BASE_DIR / "tlc_2023"
+YEAR_2024 = BASE_DIR / "tlc_2024"
+YEAR_2025 = BASE_DIR / "tlc_2025"
 
 WEIGHT_2023 = 0.30
 WEIGHT_2024 = 0.70
@@ -55,7 +58,7 @@ FULL_SCHEMA_COLS = [
 
 
 def load_month(folder, taxi, year):
-    path = os.path.join(folder, f"{taxi}_tripdata_{year}-{MONTH}.parquet")
+    path = os.path.join(str(folder), f"{taxi}_tripdata_{year}-{MONTH}.parquet")
 
     print(f"   loading {path}")
 
@@ -145,7 +148,7 @@ def impute_taxi(taxi):
     combined = weighted_sample(df23, df24)
 
     out_path = os.path.join(
-        YEAR_2025,
+        str(YEAR_2025),
         f"{taxi}_tripdata_2025-12.parquet"
     )
 

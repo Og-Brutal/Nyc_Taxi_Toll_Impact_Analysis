@@ -2,7 +2,7 @@ import pandas as pd
 from pathlib import Path
 
 def get_congestion_zone_ids():
-    project_root = Path(__file__).parent
+    project_root = Path(__file__).resolve().parent
     csv_path = str(project_root / "tlc_data" / "tlc_taxi_zone_lookup" / "taxi_zone_lookup.csv")
 
     congestion_ids = set()
