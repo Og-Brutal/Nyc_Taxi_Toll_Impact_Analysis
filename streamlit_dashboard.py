@@ -166,44 +166,99 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Helper functions
+def check_data_availability():
+    """Check if TLC data directories exist and contain parquet files"""
+    data_2024 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2024"
+    data_2025 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2025"
+    
+    has_2024 = os.path.exists(data_2024) and any(f.endswith('.parquet') for f in os.listdir(data_2024))
+    has_2025 = os.path.exists(data_2025) and any(f.endswith('.parquet') for f in os.listdir(data_2025))
+    
+    return has_2024, has_2025
+
+def show_data_missing_message(year=None):
+    """Display user-friendly message when data is not available"""
+    if year:
+        message = f"""
+        <div class="warning-box">
+            <h4>📥 No {year} Data Found</h4>
+            <p>The required TLC trip data for {year} is not available.</p>
+            <p><strong>👉 Please click the "Download Data" button in the sidebar to download the required data.</strong></p>
+            <ol>
+                <li>Open the sidebar (← icon in top-left)</li>
+                <li>Expand the "🔄 Download TLC Data" section</li>
+                <li>Select the year(s) you need</li>
+                <li>Click the "📥 Download Data" button</li>
+            </ol>
+        </div>
+        """
+    else:
+        message = """
+        <div class="warning-box">
+            <h4>📥 No Data Found</h4>
+            <p>The required TLC trip data is not available.</p>
+            <p><strong>👉 Please click the "Download Data" button in the sidebar to download the required data.</strong></p>
+            <ol>
+                <li>Open the sidebar (← icon in top-left)</li>
+                <li>Expand the "🔄 Download TLC Data" section</li>
+                <li>Select the year(s) you need (2024 and 2025 recommended)</li>
+                <li>Click the "📥 Download Data" button</li>
+            </ol>
+        </div>
+        """
+    st.markdown(message, unsafe_allow_html=True)
+
 # Caching functions for performance
 @st.cache_data(show_spinner=False)
 def load_border_effect_data():
     """Load border effect analysis data"""
-    change_df, border_ids = calculate_border_dropoff_changes()
-    return change_df, border_ids
+    try:
+        change_df, border_ids = calculate_border_dropoff_changes()
+        return change_df, border_ids
+    except Exception as e:
+        return None, None
 
 @st.cache_data(show_spinner=False)
 def load_velocity_data():
     """Load velocity heatmap data"""
-    folder_2024 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2024"
-    folder_2025 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2025"
-    heatmap_2024, heatmap_2025 = compare_q1_velocity(folder_2024, folder_2025)
-    return heatmap_2024, heatmap_2025
+    try:
+        folder_2024 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2024"
+        folder_2025 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2025"
+        heatmap_2024, heatmap_2025 = compare_q1_velocity(folder_2024, folder_2025)
+        return heatmap_2024, heatmap_2025
+    except Exception as e:
+        return None, None
 
 @st.cache_data(show_spinner=False)
 def load_tip_data():
     """Load tip crowding-out analysis data"""
-    zones = get_congestion_zone_ids()
-    df_2025 = aggregate_2025_folder(
-        tlc_2025_folder="tlc_data/tlc_2025",
-        congestion_zone_ids=zones,
-        after_date="2025-01-05"
-    )
-    return df_2025
+    try:
+        zones = get_congestion_zone_ids()
+        df_2025 = aggregate_2025_folder(
+            tlc_2025_folder="tlc_data/tlc_2025",
+            congestion_zone_ids=zones,
+            after_date="2025-01-05"
+        )
+        return df_2025
+    except Exception as e:
+        return None
 
 @st.cache_data(show_spinner=False)
 def load_weather_data():
     """Load weather elasticity data"""
-    zones = get_congestion_zone_ids()
-    weather_df = fetch_precipitation_2025()
-    trip_df = compute_daily_trip_counts_2025(
-        tlc_2025_folder="tlc_data/tlc_2025",
-        congestion_zone_ids=zones
-    )
-    merged = merge_weather_trips(weather_df, trip_df)
-    elasticity = compute_rain_elasticity(merged)
-    return merged, elasticity
+    try:
+        zones = get_congestion_zone_ids()
+        weather_df = fetch_precipitation_2025()
+        trip_df = compute_daily_trip_counts_2025(
+            tlc_2025_folder="tlc_data/tlc_2025",
+            congestion_zone_ids=zones
+        )
+        merged = merge_weather_trips(weather_df, trip_df)
+        elasticity = compute_rain_elasticity(merged)
+        return merged, elasticity
+    except Exception as e:
+        return None, None
 
 def create_header():
     """Create dashboard header"""
@@ -273,6 +328,11 @@ def tab_border_effect():
     with st.spinner("Loading border effect data..."):
         change_df, border_ids = load_border_effect_data()
     
+    # Check if data was loaded successfully
+    if change_df is None or border_ids is None:
+        show_data_missing_message()
+        return
+    
     # Generate interactive map
     map_file = "border_effect_map.html"
     if not os.path.exists(map_file):
@@ -285,7 +345,7 @@ def tab_border_effect():
             map_html = f.read()
         st.components.v1.html(map_html, height=600, scrolling=True)
     else:
-        st.error("Map file not found. Please regenerate the analysis.")
+        show_data_missing_message()
     
     # Summary statistics
     st.markdown("#### 📈 Summary Statistics")
@@ -330,7 +390,7 @@ def tab_velocity_heatmaps():
         heatmap_2024, heatmap_2025 = load_velocity_data()
     
     if heatmap_2024 is None or heatmap_2025 is None:
-        st.error("Velocity data not available. Please run the analysis first.")
+        show_data_missing_message()
         return
     
     # Create side-by-side heatmaps using Plotly
@@ -427,8 +487,8 @@ def tab_tip_economics():
     with st.spinner("Loading tip analysis data..."):
         df_2025 = load_tip_data()
     
-    if df_2025.empty:
-        st.error("Tip data not available. Please run the analysis first.")
+    if df_2025 is None or df_2025.empty:
+        show_data_missing_message(year=2025)
         return
     
     df_2025 = df_2025.sort_index()
@@ -552,8 +612,8 @@ def tab_weather_elasticity():
     with st.spinner("Loading weather elasticity data..."):
         merged, elasticity = load_weather_data()
     
-    if merged.empty:
-        st.error("Weather data not available. Please run the analysis first.")
+    if merged is None or elasticity is None or merged.empty:
+        show_data_missing_message(year=2025)
         return
     
     # Find wettest month
