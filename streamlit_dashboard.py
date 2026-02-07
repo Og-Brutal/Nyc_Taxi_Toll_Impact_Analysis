@@ -34,6 +34,8 @@ from Elasticity_Model import fetch_precipitation_2025, compute_daily_trip_counts
 from Crawler import TLCDownloader
 from impute_december_2025_tlc_batches import impute_2025_12_data
 from generate_audit_report import run_audit_report
+from Leakage_Audit import run_leakage_audit
+from Yellow_vs_Green_Decline import compare_q1_yellow_vs_green
 
 # Page configuration
 st.set_page_config(
@@ -267,6 +269,34 @@ def load_weather_data():
         return merged, elasticity
     except Exception as e:
         return None, None
+
+@st.cache_data(show_spinner=False)
+def load_leakage_data():
+    """Load leakage audit data"""
+    try:
+        zones = get_congestion_zone_ids()
+        compliance_rate, top3_missing = run_leakage_audit(
+            parquet_folder="tlc_data/tlc_2025",
+            congestion_zone_ids=zones,
+            after_date="2025-01-05"
+        )
+        return compliance_rate, top3_missing
+    except Exception as e:
+        return None, None
+
+@st.cache_data(show_spinner=False)
+def load_decline_data():
+    """Load taxi industry decline comparison data"""
+    try:
+        zones = get_congestion_zone_ids()
+        results = compare_q1_yellow_vs_green(
+            folder_2024="tlc_data/tlc_2024",
+            folder_2025="tlc_data/tlc_2025",
+            congestion_zone_ids=zones
+        )
+        return results
+    except Exception as e:
+        return None
 
 def create_header():
     """Create dashboard header"""
@@ -831,6 +861,119 @@ def tab_audit_report():
         - Toll optimization strategies
         """)
 
+def tab_leakage_audit():
+    """Tab 6: Leakage Audit Analysis"""
+    st.markdown("### 🛡️ Surcharge Leakage Audit")
+    st.markdown("""
+    <div class="info-box">
+        <strong>Objective:</strong> Audit compliance for trips entering the congestion zone from outside.
+        <br><strong>Hypothesis:</strong> Are some trips entering the zone failing to charge the mandatory surcharge?
+    </div>
+    """, unsafe_allow_html=True)
+    
+    with st.spinner("Running leakage audit..."):
+        compliance_rate, top3_missing = load_leakage_data()
+    
+    if compliance_rate is None or top3_missing is None:
+        show_data_missing_message(year=2025)
+        return
+    
+    col1, col2 = st.columns([1, 2])
+    
+    with col1:
+        st.markdown("#### 📈 Compliance Rate")
+        st.metric(
+            label="Surcharge Compliance",
+            value=f"{compliance_rate:.1%}",
+            delta=f"{(1-compliance_rate):.1%} Leakage",
+            delta_color="inverse"
+        )
+        
+        st.markdown(f"""
+        <div class="{'success-box' if compliance_rate > 0.95 else 'warning-box'}">
+            <strong>Audit Verdict:</strong><br>
+            Current compliance is <strong>{compliance_rate:.1%}</strong>. 
+            { 'Compliance is high, but monitoring should continue.' if compliance_rate > 0.95 else 'Leakage is significant. Investigation into high-missing-rate zones is recommended.'}
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("#### 🚨 Top 3 Locations with Missing Surcharges")
+        # Prettify table for display
+        display_df = top3_missing.copy()
+        display_df['missing_rate'] = display_df['missing_rate'].apply(lambda x: f"{x:.1%}")
+        display_df.columns = ['Location ID', 'Total Trips', 'Missing Surcharges', 'Missing Rate']
+        st.table(display_df)
+        
+        st.info("These zones show the highest frequency of trips entering the congestion zone without a recorded surcharge.")
+
+def tab_taxi_decline():
+    """Tab 7: Taxi Industry Decline Analysis"""
+    st.markdown("### 📉 Taxi Industry Decline Analysis")
+    st.markdown("""
+    <div class="info-box">
+        <strong>Analysis:</strong> Impact of congestion pricing on Yellow vs. Green taxi volumes.
+        <br><strong>Method:</strong> Compare Q1 2024 (Pre-Toll) vs Q1 2025 (Post-Toll) trip volumes.
+    </div>
+    """, unsafe_allow_html=True)
+    
+    with st.spinner("Analyzing taxi volumes..."):
+        results = load_decline_data()
+    
+    if results is None:
+        show_data_missing_message()
+        return
+    
+    # Create comparison table
+    data = []
+    for ttype, metrics in results.items():
+        data.append({
+            "Taxi Type": ttype,
+            "Q1 2024 Trips": f"{metrics['Q1_2024']:,}",
+            "Q1 2025 Trips": f"{metrics['Q1_2025']:,}",
+            "Net Change": f"{metrics['change']:+,}",
+            "% Change": f"{metrics['pct_change']:.1f}%" if metrics['pct_change'] is not None else "N/A"
+        })
+    
+    comparison_df = pd.DataFrame(data)
+    st.markdown("#### 📊 Comparative Volume Table")
+    st.dataframe(comparison_df, use_container_width=True, hide_index=True)
+    
+    # Visualizations
+    st.markdown("#### 📉 Visual Comparison")
+    
+    types = ["Yellow", "Green"]
+    vol_2024 = [results["Yellow"]["Q1_2024"], results["Green"]["Q1_2024"]]
+    vol_2025 = [results["Yellow"]["Q1_2025"], results["Green"]["Q1_2025"]]
+    
+    fig = go.Figure(data=[
+        go.Bar(name='Q1 2024 (Pre-Toll)', x=types, y=vol_2024, marker_color='#667eea'),
+        go.Bar(name='Q1 2025 (Post-Toll)', x=types, y=vol_2025, marker_color='#ff7f0e')
+    ])
+    
+    fig.update_layout(
+        barmode='group',
+        title="Taxi Volume Comparison: Q1 2024 vs Q1 2025",
+        xaxis_title="Taxi Type",
+        yaxis_title="Number of Trips",
+        height=500
+    )
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Key Findings
+    yellow_pct = results["Yellow"]["pct_change"]
+    green_pct = results["Green"]["pct_change"]
+    
+    st.markdown(f"""
+    <div class="warning-box">
+        <strong>Key Insights:</strong><br>
+        • Yellow Taxi volume changed by <strong>{yellow_pct:+.1f}%</strong>.<br>
+        • Green Taxi volume changed by <strong>{green_pct:+.1f}%</strong>.<br>
+        • Overall industry impact shows a <strong>{'decline' if results['Total']['pct_change'] < 0 else 'growth'}</strong> 
+          of <strong>{abs(results['Total']['pct_change']):.1f}%</strong> in trips entering the congestion zone.
+    </div>
+    """, unsafe_allow_html=True)
+
 
 def main():
     """Main dashboard application"""
@@ -885,7 +1028,9 @@ def main():
         - **🚦 Velocity**: Traffic speed analysis
         - **💰 Tip Economics**: Driver income impact
         - **🌧️ Weather**: Rain elasticity
-        - **📄 Audit Report**: PDF report generation
+        - **�️ Leakage Audit**: Surcharge compliance
+        - **📉 Taxi Decline**: Yellow vs Green impact
+        - **�📄 Audit Report**: PDF report generation
         """)
         
         st.markdown("---")
@@ -918,11 +1063,13 @@ def main():
     st.markdown("---")
     
     # Create tabs
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
         "🗺️ Border Effect Map",
         "🚦 Velocity Heatmaps",
         "💰 Tip Economics",
         "🌧️ Weather Elasticity",
+        "🛡️ Leakage Audit",
+        "📉 Taxi Decline",
         "📄 Audit Report"
     ])
     
@@ -937,8 +1084,14 @@ def main():
     
     with tab4:
         tab_weather_elasticity()
-    
+        
     with tab5:
+        tab_leakage_audit()
+        
+    with tab6:
+        tab_taxi_decline()
+    
+    with tab7:
         tab_audit_report()
     
     # Footer
