@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+from pathlib import Path
 
 from Parquet_Loader import tlc_filtered_batches
 
@@ -10,7 +11,8 @@ from Parquet_Loader import tlc_filtered_batches
 # CONFIG
 # ==========================================================
 
-BASE_DIR = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data"
+PROJECT_ROOT = Path(__file__).parent
+BASE_DIR = str(PROJECT_ROOT / "tlc_data")
 
 YEAR_2023 = os.path.join(BASE_DIR, "tlc_2023")
 YEAR_2024 = os.path.join(BASE_DIR, "tlc_2024")

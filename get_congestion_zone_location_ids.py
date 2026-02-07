@@ -1,7 +1,9 @@
 import pandas as pd
+from pathlib import Path
 
 def get_congestion_zone_ids():
-    csv_path = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_taxi_zone_lookup/taxi_zone_lookup.csv"
+    project_root = Path(__file__).parent
+    csv_path = str(project_root / "tlc_data" / "tlc_taxi_zone_lookup" / "taxi_zone_lookup.csv")
 
     congestion_ids = set()
 

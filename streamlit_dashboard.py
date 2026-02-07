@@ -20,7 +20,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 
 # Add project root to path
-project_root = Path(__file__).parent
+project_root = Path(__file__).resolve().parent
 sys.path.insert(0, str(project_root))
 
 # Import analysis modules
@@ -169,11 +169,11 @@ st.markdown("""
 # Helper functions
 def check_data_availability():
     """Check if TLC data directories exist and contain parquet files"""
-    data_2024 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2024"
-    data_2025 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2025"
+    data_2024 = project_root / "tlc_data" / "tlc_2024"
+    data_2025 = project_root / "tlc_data" / "tlc_2025"
     
-    has_2024 = os.path.exists(data_2024) and any(f.endswith('.parquet') for f in os.listdir(data_2024))
-    has_2025 = os.path.exists(data_2025) and any(f.endswith('.parquet') for f in os.listdir(data_2025))
+    has_2024 = data_2024.exists() and any(f.endswith('.parquet') for f in os.listdir(data_2024))
+    has_2025 = data_2025.exists() and any(f.endswith('.parquet') for f in os.listdir(data_2025))
     
     return has_2024, has_2025
 
@@ -223,8 +223,8 @@ def load_border_effect_data():
 def load_velocity_data():
     """Load velocity heatmap data"""
     try:
-        folder_2024 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2024"
-        folder_2025 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2025"
+        folder_2024 = str(project_root / "tlc_data" / "tlc_2024")
+        folder_2025 = str(project_root / "tlc_data" / "tlc_2025")
         heatmap_2024, heatmap_2025 = compare_q1_velocity(folder_2024, folder_2025)
         return heatmap_2024, heatmap_2025
     except Exception as e:

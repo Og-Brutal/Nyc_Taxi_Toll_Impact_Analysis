@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from pathlib import Path
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
@@ -17,7 +18,8 @@ from Elasticity_Model import run_weather_elastisity
 # =====================================================
 # CONFIG
 # =====================================================
-BASE_DIR = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2025"
+PROJECT_ROOT = Path(__file__).parent
+BASE_DIR = str(PROJECT_ROOT / "tlc_data" / "tlc_2025")
 REPORT_FILE = "audit_report.pdf"
 
 # =====================================================

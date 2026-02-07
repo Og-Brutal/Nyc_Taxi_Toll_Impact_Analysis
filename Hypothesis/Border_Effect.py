@@ -12,6 +12,7 @@ from collections import defaultdict
 import geopandas as gpd
 import matplotlib.pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
+from pathlib import Path
 
 # ──────────────────────────────────────────────
 # Reuse your existing modules (no duplication)
@@ -23,10 +24,13 @@ from get_congestion_zone_location_ids import get_congestion_zone_ids  # your fun
 # Configuration – adjust paths if needed
 # ──────────────────────────────────────────────
 
-FOLDER_2024 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2024"
-FOLDER_2025 = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2025"
+# Get project root directory
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-LOOKUP_CSV = "/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_taxi_zone_lookup/taxi_zone_lookup.csv"
+FOLDER_2024 = str(PROJECT_ROOT / "tlc_data" / "tlc_2024")
+FOLDER_2025 = str(PROJECT_ROOT / "tlc_data" / "tlc_2025")
+
+LOOKUP_CSV = str(PROJECT_ROOT / "tlc_data" / "tlc_taxi_zone_lookup" / "taxi_zone_lookup.csv")
 SHAPEFILE_ZIP = "taxi_zones.zip"
 
 # Zones considered "just outside" (north of ~60th St)
