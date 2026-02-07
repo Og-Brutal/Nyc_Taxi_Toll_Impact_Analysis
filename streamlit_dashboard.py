@@ -165,6 +165,12 @@ st.markdown("""
         border-top: 1px solid #eee;
         margin-top: 3rem;
     }
+    
+    /* Hide Streamlit Deploy button and header elements */
+    header {visibility: hidden;}
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    .stDeployButton {display:none;}
 </style>
 """, unsafe_allow_html=True)
 

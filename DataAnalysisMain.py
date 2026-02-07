@@ -2,6 +2,13 @@ from Crawler import TLCDownloader
 from Parquet_Loader import tlc_filtered_batches
 from zone_utils import get_congestion_zone_ids
 import pandas as pd
+import os
+from pathlib import Path
+import sys
+
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent
+
 from Leakage_Audit import run_leakage_audit
 from Yellow_vs_Green_Decline import (
     compare_q1_yellow_vs_green,
@@ -36,8 +43,9 @@ from generate_audit_report import run_audit_report
 
 
 #Loading Filterd Data in Batches
-# generatorObject=tlc_filtered_batches("/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_parquet_2025/green_tripdata_2025-04.parquet")
+# generatorObject=tlc_filtered_batches(PROJECT_ROOT / "tlc_data" / "tlc_2025" / "green_tripdata_2025-04.parquet")
 # df=next(generatorObject)
+
 
 
 
@@ -48,10 +56,11 @@ from generate_audit_report import run_audit_report
 # congestionZoneIds=get_congestion_zone_ids()
 
 # Compilance Rate and top 3 pickup locations with the highest rate of "missing surcharges."
-# (compliance_rate,top3_missing)=run_leakage_audit("/home/wahab/Data_Science_Assigment_1_final_draft/tlc_data/tlc_2025"
+# (compliance_rate,top3_missing)=run_leakage_audit(PROJECT_ROOT / "tlc_data" / "tlc_2025"
 #                                                  ,congestion_zone_ids=congestionZoneIds
 #                                                  ,after_date="2025-01-05"
 #                                                  )
+
 # print("Compilance Rate : ",compliance_rate)
 # print(top3_missing)
 

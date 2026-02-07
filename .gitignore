@@ -21,6 +21,20 @@ tlc_2025/
 tlc_taxi_zone_lookup/
 
 # --------------------
+# Taxi zone shapefiles & archives (typically large / downloadable)
+# --------------------
+taxi_zones.zip
+taxi_zones_shp/
+taxi_zones.dbf
+taxi_zones.prj
+taxi_zones.shx
+taxi_zones.sbn
+taxi_zones.sbx
+taxi_zones.shp
+taxi_zones.shp.xml
+taxi_zones.cpg
+
+# --------------------
 # Generated reports & visualizations
 # --------------------
 audit_report.pdf

@@ -19,20 +19,11 @@ from matplotlib.colors import TwoSlopeNorm
 import sys
 from pathlib import Path
 
-# Ensure project root is in path if this script is run directly
+# Project constants
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
 
 from Parquet_Loader import tlc_filtered_batches           # your batch loader
 from zone_utils import get_congestion_zone_ids  # your function
-
-# ──────────────────────────────────────────────
-# Configuration – adjust paths if needed
-# ──────────────────────────────────────────────
-
-# Get project root directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 FOLDER_2024 = str(PROJECT_ROOT / "tlc_data" / "tlc_2024")
 FOLDER_2025 = str(PROJECT_ROOT / "tlc_data" / "tlc_2025")
