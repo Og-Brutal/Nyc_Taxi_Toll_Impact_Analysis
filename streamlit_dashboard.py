@@ -838,9 +838,9 @@ def main():
         st.markdown("---")
         st.markdown("### 🔗 Resources")
         st.markdown("""
-        - [GitHub Repository](#)
-        - [Medium Blog](#)
-        - [LinkedIn Post](#)
+        - [GitHub Repository](https://github.com/Og-Brutal/Nyc_Taxi_Toll_Impact_Analysis.git)
+        - [LinkedIn Post](https://www.linkedin.com/posts/abdul-wahab-09b364388_datascience-python-streamlit-activity-7425788624950001690-18Ls?utm_source=share&utm_medium=member_desktop)
+        - [Medium Blog](https://medium.com/@ogbrutal2825/nyc-congestion-pricing-audit-a-data-driven-analysis-dashboard-1538222375e9)
         """)
     
     # Main content
