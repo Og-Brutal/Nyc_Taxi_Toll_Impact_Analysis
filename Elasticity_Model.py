@@ -17,7 +17,7 @@ from scipy.stats import linregress
 
 from Crawler import TLCDownloader
 from Parquet_Loader import tlc_filtered_batches
-from get_congestion_zone_location_ids import get_congestion_zone_ids
+from zone_utils import get_congestion_zone_ids
 
 
 # ============================================================

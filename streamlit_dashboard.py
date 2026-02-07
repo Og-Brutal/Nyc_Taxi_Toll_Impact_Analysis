@@ -26,7 +26,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 
 # Import analysis modules
-from get_congestion_zone_location_ids import get_congestion_zone_ids
+from zone_utils import get_congestion_zone_ids
 from Hypothesis.Border_Effect import calculate_border_dropoff_changes, generate_interactive_folium_map
 from Hypothesis.congestion_velocity import compare_q1_velocity
 from Hypothesis.Tip_Crowding_Out_Analysis import aggregate_2025_folder

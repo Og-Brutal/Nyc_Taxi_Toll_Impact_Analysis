@@ -1,6 +1,6 @@
 from Crawler import TLCDownloader
 from Parquet_Loader import tlc_filtered_batches
-from get_congestion_zone_location_ids import get_congestion_zone_ids
+from zone_utils import get_congestion_zone_ids
 import pandas as pd
 from Leakage_Audit import run_leakage_audit
 from Yellow_vs_Green_Decline import (

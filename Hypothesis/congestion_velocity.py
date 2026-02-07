@@ -11,7 +11,7 @@ for Q1 of a given year and aggregates by:
 
 Designed to work with:
 - Parquet_Loader.tlc_filtered_batches
-- get_congestion_zone_location_ids.get_congestion_zone_ids
+- zone_utils.get_congestion_zone_ids
 """
 
 import os
@@ -26,7 +26,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from Parquet_Loader import tlc_filtered_batches
-from get_congestion_zone_location_ids import get_congestion_zone_ids
+from zone_utils import get_congestion_zone_ids
 
 
 # -------------------------------------------------------

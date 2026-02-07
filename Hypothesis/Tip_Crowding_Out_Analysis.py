@@ -11,6 +11,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from Parquet_Loader import tlc_filtered_batches
+from zone_utils import get_congestion_zone_ids
 from scipy.stats import linregress
 
 # ============================================================
