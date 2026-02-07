@@ -1,0 +1,39 @@
+# --------------------
+# Python cache
+# --------------------
+__pycache__/
+*.pyc
+*.pyo
+
+# --------------------
+# Virtual environments
+# --------------------
+venv/
+.env
+.env.*
+
+# --------------------
+# Large TLC datasets (downloaded data)
+# --------------------
+tlc_2023/
+tlc_2024/
+tlc_2025/
+tlc_taxi_zone_lookup/
+
+# --------------------
+# Generated reports & visualizations
+# --------------------
+audit_report.pdf
+border_effect_map.html
+
+# --------------------
+# Generated CSV outputs
+# --------------------
+weather_2025_central_park.csv
+
+# --------------------
+# OS / Editor files
+# --------------------
+.DS_Store
+.vscode/
+.idea/
