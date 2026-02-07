@@ -15,13 +15,15 @@ import numpy as np
 import os
 import sys
 from pathlib import Path
+
+# Add project root to path immediately for robust submodule imports
+project_root = Path(__file__).resolve().parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
-
-# Add project root to path
-project_root = Path(__file__).resolve().parent
-sys.path.insert(0, str(project_root))
 
 # Import analysis modules
 from get_congestion_zone_location_ids import get_congestion_zone_ids

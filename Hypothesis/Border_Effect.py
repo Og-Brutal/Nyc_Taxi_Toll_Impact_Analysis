@@ -12,11 +12,18 @@ from collections import defaultdict
 import geopandas as gpd
 import matplotlib.pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
-from pathlib import Path
 
 # ──────────────────────────────────────────────
 # Reuse your existing modules (no duplication)
 # ──────────────────────────────────────────────
+import sys
+from pathlib import Path
+
+# Ensure project root is in path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from Parquet_Loader import tlc_filtered_batches           # your batch loader
 from get_congestion_zone_location_ids import get_congestion_zone_ids  # your function
 

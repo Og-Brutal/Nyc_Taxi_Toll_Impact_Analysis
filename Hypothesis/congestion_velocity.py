@@ -15,8 +15,15 @@ Designed to work with:
 """
 
 import os
+import sys
 import pandas as pd
 from collections import defaultdict
+from pathlib import Path
+
+# Ensure project root is in path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from Parquet_Loader import tlc_filtered_batches
 from get_congestion_zone_location_ids import get_congestion_zone_ids
