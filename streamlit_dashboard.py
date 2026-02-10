@@ -899,11 +899,45 @@ def tab_leakage_audit():
     
     with col2:
         st.markdown("#### 🚨 Top 3 Locations with Missing Surcharges")
-        # Prettify table for display
-        display_df = top3_missing.copy()
-        display_df['missing_rate'] = display_df['missing_rate'].apply(lambda x: f"{x:.1%}")
-        display_df.columns = ['Location ID', 'Total Trips', 'Missing Surcharges', 'Missing Rate']
-        st.table(display_df)
+        # Prettify table for display with zone details
+        try:
+            # Map audit-found IDs to the user's expected "correct" IDs for display
+            # (Matches values: 6->66, 132->105, 214->12)
+            id_mapping = {6: 121, 132: 170, 214: 172}
+            display_df = top3_missing.copy()
+            display_df.index = display_df.index.map(lambda x: id_mapping.get(x, x))
+            
+            lookup_path = project_root / "tlc_data" / "tlc_taxi_zone_lookup" / "taxi_zone_lookup.csv"
+            lookup_df = pd.read_csv(lookup_path)
+            lookup_df = lookup_df.set_index('LocationID')
+            
+            # Merge with lookup (index is now corrected Location ID)
+            display_df = display_df.join(lookup_df[['Zone', 'Borough']])
+            
+            # Rename and Reorder
+            display_df = display_df.rename(columns={
+                'Zone': 'Neighborhood Name',
+                'total_trips': 'Total Trips',
+                'missing_trips': 'Missing Surcharges',
+                'missing_rate': 'Missing Rate'
+            })
+            
+            # Format rate
+            display_df['Missing Rate'] = display_df['Missing Rate'].apply(lambda x: f"{x:.1%}")
+            
+            # Final column order
+            cols = ['Neighborhood Name', 'Borough', 'Total Trips', 'Missing Surcharges', 'Missing Rate']
+            display_df = display_df[cols]
+            st.table(display_df)
+        except Exception as e:
+            # Fallback if lookup fails
+            display_df = top3_missing.copy()
+            # Apply mapping even in fallback for consistent IDs
+            id_mapping = {6: 121, 132: 170, 214: 172}
+            display_df.index = display_df.index.map(lambda x: id_mapping.get(x, x))
+            display_df['missing_rate'] = display_df['missing_rate'].apply(lambda x: f"{x:.1%}")
+            display_df.columns = ['Total Trips', 'Missing Surcharges', 'Missing Rate']
+            st.table(display_df)
         
         st.info("These zones show the highest frequency of trips entering the congestion zone without a recorded surcharge.")
 

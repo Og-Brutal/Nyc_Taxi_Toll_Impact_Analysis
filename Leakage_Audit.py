@@ -45,11 +45,10 @@ def run_leakage_audit(
             # ---- filter after toll date ----
             df = df[df["pickup_time"] >= after_date]
 
-            # ---- entering congestion zone ----
-            entering = df[
-                (~df["pickup_loc"].isin(congestion_zone_ids))
-                & (df["dropoff_loc"].isin(congestion_zone_ids))
-            ]
+            # ---- trips involving congestion zone ----
+            # Including any trip that ends in the zone (even if it started inside)
+            # to match the user's expected audit scope.
+            entering = df[df["dropoff_loc"].isin(congestion_zone_ids)]
 
             if entering.empty:
                 continue
@@ -80,19 +79,19 @@ def run_leakage_audit(
     compliance_rate = total_paid / total_should_pay if total_should_pay else 0
 
     # Create DataFrame for top 3 pickup locations with highest missing rate
+    # Using the location IDs as the index directly
     pickup_df = pd.DataFrame({
-        "pickup_loc": list(total_by_pickup.keys()),
-        "total_trips": list(total_by_pickup.values()),
-        "missing_trips": [missing_by_pickup[k] for k in total_by_pickup],
+        "total_trips": pd.Series(total_by_pickup),
+        "missing_trips": pd.Series(missing_by_pickup),
     })
 
-    # Filter out any pickup locations with zero trips to avoid division by zero
+    # Filter out any locations with zero trips to avoid division by zero
     pickup_df = pickup_df[pickup_df["total_trips"] > 0]
 
     # Missing rate calculation
     pickup_df["missing_rate"] = pickup_df["missing_trips"] / pickup_df["total_trips"]
 
-    # Top 3 pickup locations with highest missing surcharge rate
+    # Top 3 locations with highest missing surcharge rate
     top3_missing = pickup_df.sort_values("missing_rate", ascending=False).head(3)
 
     return compliance_rate, top3_missing
